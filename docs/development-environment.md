@@ -95,8 +95,10 @@ New-Item -ItemType Directory -Path $buildRoot -Force | Out-Null
 The architecture dependency check and its automated tests run with Node.js:
 
 ```powershell
+npm.cmd ci
+npm.cmd run lint
+npm.cmd test
 node scripts/check-pawn-architecture.js
-node --test tests/architecture.test.js
 ```
 
 Never commit credentials or production secrets; use local environment
@@ -110,6 +112,9 @@ Run the workspace JSON validator from the repository root:
 node scripts/validate-workspace-config.js
 ```
 
-GitHub Actions runs this check on pushes and pull requests. Compiler, runtime,
-database, and application tests will be added to CI when their toolchains and
-project build/test commands are established.
+GitHub Actions runs the workspace validator, JavaScript lint and tests, Pawn
+architecture check, and Pawn GameMode compile on pushes and pull requests. The
+compile job downloads the official open.mp 1.6.7.3218 Windows release and
+verifies its SHA-256 digest before using the bundled compiler. C/C++ and
+database/application checks will be added when those projects and reproducible
+build/test commands are established.

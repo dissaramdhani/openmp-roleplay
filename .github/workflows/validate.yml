@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+
+      - name: Install JavaScript tooling
+        run: npm ci
 
       - name: Validate VS Code workspace configuration
         run: node scripts/validate-workspace-config.js
@@ -31,5 +35,56 @@ jobs:
       - name: Validate Pawn architecture dependencies
         run: node scripts/check-pawn-architecture.js
 
-      - name: Run architecture tests
-        run: node --test tests/architecture.test.js
+      - name: Lint JavaScript
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+  compile-pawn:
+    name: Compile Pawn GameMode
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download and verify open.mp toolchain
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP "open.mp-win-x86.zip"
+          $installPath = Join-Path $env:RUNNER_TEMP "openmp"
+          $url = "https://github.com/openmultiplayer/open.mp/releases/download/v1.6.7.3218/open.mp-win-x86.zip"
+          $expectedHash = "db44b6cedc78e79fa4c7470ec81186ad9e880ad34529ae78fddfea70ec603223"
+
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $expectedHash) {
+            throw "open.mp archive checksum mismatch: $actualHash"
+          }
+
+          Expand-Archive -LiteralPath $archive -DestinationPath $installPath
+          $pawnCompiler = Get-ChildItem -Path $installPath -Filter pawncc.exe -Recurse |
+            Select-Object -First 1
+          if ($null -eq $pawnCompiler) {
+            throw "pawncc.exe was not found in the verified open.mp archive."
+          }
+
+          $includePath = Join-Path $pawnCompiler.Directory.FullName "include"
+          if (-not (Test-Path $includePath)) {
+            throw "Pawn include directory was not found: $includePath"
+          }
+
+          "PAWNCC_PATH=$($pawnCompiler.FullName)" >> $env:GITHUB_ENV
+          "PAWN_INCLUDE_PATH=$includePath" >> $env:GITHUB_ENV
+
+      - name: Compile GameMode with warnings as errors
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP "roleplay.amx"
+          & $env:PAWNCC_PATH "gamemodes\roleplay.pwn" `
+            "-i$env:PAWN_INCLUDE_PATH" `
+            "-i$env:GITHUB_WORKSPACE\gamemodes" `
+            "-o$output" -E
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
