@@ -2,7 +2,8 @@
 
 ## Status and scope
 
-Phase 2 establishes the Pawn/open.mp architecture foundation. It does not add
+Phase 2 is complete. The Pawn/open.mp architecture foundation was reviewed and
+merged in PR #8; acceptance evidence is tracked in Issue #9. It does not add
 gameplay, a database schema, credentials, a JavaScript backend, or a C++ plugin.
 Concrete persistence and BCrypt adapters belong with the phases that introduce
 those features.
