@@ -28,6 +28,14 @@ gamemodes/
 The Domain directory intentionally has no placeholder entity. Add domain types
 when a real business concept is introduced.
 
+The root `native/` project contains the C++ Configuration Infrastructure. It
+uses the open.mp-compatible legacy AMX plugin ABI to validate versioned JSON
+files before configuration values become available to Pawn. If validation
+fails, its typed natives stay fail-closed so the GameMode can request an
+orderly server shutdown before application startup. Pawn Application consumes
+only the configuration contract; the native ABI and JSON parser remain in the
+Infrastructure adapter.
+
 ## Dependency rule
 
 The allowed source dependencies are:
@@ -49,6 +57,13 @@ Composition root ──> Presentation, Application, Infrastructure, Domain
 - `gamemodes/roleplay/modules.inc` is the composition root. It explicitly
   includes/registers the modules in compile order; this is static registration,
   not runtime plugin discovery.
+- The Application configuration contract exposes typed reads and reload. The
+  Infrastructure adapter forwards those calls to the C++ plugin. Domain and
+  Application do not include C++ or JSON implementation details.
+- The C++ plugin validates the complete environment snapshot before publishing
+  it. Reload builds and validates a candidate first, then atomically swaps the
+  active immutable snapshot; a failed reload leaves the previous snapshot
+  active.
 - Quoted Pawn include paths are rooted at the `gamemodes/` compiler include
   directory and start with `roleplay/`; the architecture check resolves them
   using the same rule.
@@ -82,8 +97,14 @@ delegates startup to Application. This is wiring only, not a gameplay feature.
 6. Run `node scripts/check-pawn-architecture.js` and
    `node --test tests/architecture.test.js`.
 7. Compile with the open.mp-compatible Pawn compiler and its includes before
-   treating the GameMode as build-verified.
+   treating the GameMode as build-verified. Build/test the C++ Configuration
+   Infrastructure with CMake and CTest.
 
 Database access, BCrypt, and client-controlled input must remain behind
 application contracts and be validated server-side when those features are
 introduced.
+
+The configuration loader is not a gameplay system. Phase 3 makes the server
+name available to startup and provides typed values for later modules; other
+configuration categories do not become active gameplay behavior until those
+modules consume them.

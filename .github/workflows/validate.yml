@@ -41,12 +41,21 @@ jobs:
       - name: Run tests
         run: npm test
 
-  compile-pawn:
-    name: Compile Pawn GameMode
+  validate-openmp-configuration:
+    name: Build and verify open.mp configuration
     runs-on: windows-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Configure C++ project for open.mp x86
+        run: cmake -S native -B build/native -A Win32
+
+      - name: Build plugin and tests
+        run: cmake --build build/native --config Release
+
+      - name: Run configuration tests
+        run: ctest --test-dir build/native -C Release --output-on-failure
 
       - name: Download and verify open.mp toolchain
         shell: pwsh
@@ -87,4 +96,139 @@ jobs:
             "-o$output" -E
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
+          }
+
+      - name: Start open.mp with the configuration plugin on loopback
+        shell: pwsh
+        run: |
+          $serverExecutable = Get-ChildItem -Path (Join-Path $env:RUNNER_TEMP "openmp") `
+            -Filter "omp-server.exe" -Recurse | Select-Object -First 1
+          if ($null -eq $serverExecutable) {
+            throw "omp-server.exe was not found in the verified open.mp archive."
+          }
+
+          $serverRoot = $serverExecutable.Directory.FullName
+          $gamemodesPath = Join-Path $serverRoot "gamemodes"
+          $pluginPath = Join-Path $serverRoot "plugins"
+          $amxPath = Join-Path $env:RUNNER_TEMP "roleplay.amx"
+          $pluginBinary = Join-Path $env:GITHUB_WORKSPACE "build\native\Release\roleplay_config.dll"
+
+          New-Item -ItemType Directory -Path $pluginPath -Force | Out-Null
+          Copy-Item -LiteralPath $amxPath -Destination (Join-Path $gamemodesPath "roleplay.amx")
+          Copy-Item -LiteralPath $pluginBinary -Destination (Join-Path $pluginPath "roleplay_config.dll")
+
+          $configPath = Join-Path $serverRoot "config.json"
+          $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
+          $config.announce = $false
+          $config.rcon.enable = $false
+          $config.network.bind = "127.0.0.1"
+          $config.network.port = 17789
+          $config.pawn.main_scripts = @("roleplay")
+          $config.pawn.legacy_plugins = @("roleplay_config")
+          $encoding = [System.Text.UTF8Encoding]::new($false)
+          [System.IO.File]::WriteAllText(
+            $configPath,
+            ($config | ConvertTo-Json -Depth 100),
+            $encoding
+          )
+
+          $env:OPENMP_ENV = "development"
+          $env:OPENMP_CONFIG_ROOT = Join-Path $env:GITHUB_WORKSPACE "config"
+          $stdoutPath = Join-Path $serverRoot "phase3-server.stdout.log"
+          $stderrPath = Join-Path $serverRoot "phase3-server.stderr.log"
+          $server = Start-Process `
+            -FilePath $serverExecutable.FullName `
+            -WorkingDirectory $serverRoot `
+            -RedirectStandardOutput $stdoutPath `
+            -RedirectStandardError $stderrPath `
+            -PassThru
+
+          $started = $false
+          try {
+            for ($attempt = 0; $attempt -lt 20; $attempt++) {
+              Start-Sleep -Seconds 1
+              if ($server.HasExited) {
+                break
+              }
+
+              if (Test-Path $stdoutPath) {
+                $output = Get-Content -LiteralPath $stdoutPath -Raw
+                if ($output -match "\[roleplay\] Application started: OpenMP Roleplay Development") {
+                  $started = $true
+                  break
+                }
+              }
+            }
+
+            if (-not $started) {
+              $stdout = if (Test-Path $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw } else { "" }
+              $stderr = if (Test-Path $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw } else { "" }
+              throw "open.mp configuration startup smoke failed.`nSTDOUT:`n$stdout`nSTDERR:`n$stderr"
+            }
+          }
+          finally {
+            if (-not $server.HasExited) {
+              Stop-Process -Id $server.Id
+              Wait-Process -Id $server.Id -Timeout 10 -ErrorAction SilentlyContinue
+            }
+          }
+
+          $invalidConfigRoot = Join-Path $env:RUNNER_TEMP "invalid-config"
+          New-Item -ItemType Directory -Path $invalidConfigRoot -Force | Out-Null
+          Copy-Item -Path (Join-Path $env:GITHUB_WORKSPACE "config\*") `
+            -Destination $invalidConfigRoot -Recurse
+          $invalidServerConfigPath = Join-Path $invalidConfigRoot "development\server.json"
+          $invalidServerConfig = Get-Content -LiteralPath $invalidServerConfigPath -Raw | ConvertFrom-Json
+          $invalidServerConfig.schema_version = 99
+          [System.IO.File]::WriteAllText(
+            $invalidServerConfigPath,
+            ($invalidServerConfig | ConvertTo-Json -Depth 100),
+            $encoding
+          )
+
+          $env:OPENMP_CONFIG_ROOT = $invalidConfigRoot
+          $invalidStdoutPath = Join-Path $serverRoot "phase3-invalid-server.stdout.log"
+          $invalidStderrPath = Join-Path $serverRoot "phase3-invalid-server.stderr.log"
+          $invalidServer = Start-Process `
+            -FilePath $serverExecutable.FullName `
+            -WorkingDirectory $serverRoot `
+            -RedirectStandardOutput $invalidStdoutPath `
+            -RedirectStandardError $invalidStderrPath `
+            -PassThru
+
+          $stopped = $false
+          try {
+            for ($attempt = 0; $attempt -lt 20; $attempt++) {
+              Start-Sleep -Seconds 1
+              if ($invalidServer.HasExited) {
+                $stopped = $true
+                break
+              }
+            }
+
+            $invalidOutput = if (Test-Path $invalidStdoutPath) {
+              Get-Content -LiteralPath $invalidStdoutPath -Raw
+            } else {
+              ""
+            }
+            $invalidError = if (Test-Path $invalidStderrPath) {
+              Get-Content -LiteralPath $invalidStderrPath -Raw
+            } else {
+              ""
+            }
+            $invalidLogs = "$invalidOutput`n$invalidError"
+            if (-not $stopped) {
+              throw "open.mp did not stop after rejecting startup configuration.`n$invalidLogs"
+            }
+            if ($invalidLogs -notmatch "Startup configuration rejected" -or
+                $invalidLogs -notmatch "Startup aborted" -or
+                $invalidLogs -match "Application started:") {
+              throw "Invalid configuration did not fail closed before application startup.`n$invalidLogs"
+            }
+          }
+          finally {
+            if (-not $invalidServer.HasExited) {
+              Stop-Process -Id $invalidServer.Id
+              Wait-Process -Id $invalidServer.Id -Timeout 10 -ErrorAction SilentlyContinue
+            }
           }

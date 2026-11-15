@@ -26,6 +26,7 @@ const externalDependencyLayers = new Set([
 const registeredModules = [
     "roleplay/application/startup.inc",
     "roleplay/infrastructure/adapters/console_logging.inc",
+    "roleplay/infrastructure/adapters/configuration.inc",
     "roleplay/presentation/server_callbacks.inc",
 ];
 

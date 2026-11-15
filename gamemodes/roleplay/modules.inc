@@ -1,4 +1,6 @@
 #include "roleplay/application/contracts/logging.inc"
+#include "roleplay/application/contracts/configuration.inc"
 #include "roleplay/application/startup.inc"
 #include "roleplay/infrastructure/adapters/console_logging.inc"
+#include "roleplay/infrastructure/adapters/configuration.inc"
 #include "roleplay/presentation/server_callbacks.inc"
