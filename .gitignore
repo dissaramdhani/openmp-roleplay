@@ -1,0 +1,39 @@
+# Dependencies and generated output
+node_modules/
+vendor/
+build/
+dist/
+coverage/
+out/
+
+# Compiled Pawn and native binaries
+*.amx
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+*.a
+*.lib
+*.pdb
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+config/*.local.json
+config/*-local.json
+
+# Logs, temporary files, and local data
+*.log
+*.tmp
+*.temp
+*.bak
+logs/
+crashinfo.txt
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

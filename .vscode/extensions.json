@@ -1,0 +1,26 @@
+{
+  "recommendations": [
+    "openmp.pawn-development",
+    "ms-vscode.cpptools",
+    "ms-vscode.cmake-tools",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-mysql",
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "editorconfig.editorconfig",
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+    "yzhang.markdown-all-in-one",
+    "redhat.vscode-yaml",
+    "mikestead.dotenv",
+    "humao.rest-client",
+    "gruntfuggly.todo-tree",
+    "christian-kohler.path-intellisense",
+    "ms-azuretools.vscode-docker",
+    "rangav.vscode-thunder-client",
+    "christian-kohler.npm-intellisense",
+    "ms-vscode-remote.remote-ssh"
+  ]
+}
