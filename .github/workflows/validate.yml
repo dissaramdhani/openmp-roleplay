@@ -27,3 +27,9 @@ jobs:
 
       - name: Validate VS Code workspace configuration
         run: node scripts/validate-workspace-config.js
+
+      - name: Validate Pawn architecture dependencies
+        run: node scripts/check-pawn-architecture.js
+
+      - name: Run architecture tests
+        run: node --test tests/architecture.test.js
