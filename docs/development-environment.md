@@ -74,11 +74,23 @@ found in the local server installation at
 `%USERPROFILE%\Downloads\Server\qawno\pawncc.exe` (it is not on `PATH`). The
 bootstrap compiled with warnings treated as errors using that installation's
 matching includes. A Pawn build task is not added because this workstation's
-installation path is local-specific. No CMake plugin project exists yet.
-See [Core Architecture](architecture.md) for the layer rules and module layout.
-Phase 2 is complete; its review and verification evidence are tracked in
-[Issue #9](https://github.com/dissaramdhani/openmp-roleplay/issues/9) and
-[PR #8](https://github.com/dissaramdhani/openmp-roleplay/pull/8).
+installation path is local-specific. Phase 3 adds a CMake project under
+`native/` for the C++ configuration plugin and tests.
+
+The installed open.mp Windows server is x86 (32-bit), while the verified MSYS2
+UCRT64 compiler targets x86_64. A plugin built with that compiler cannot be
+loaded by this server. Use a Win32 Visual Studio CMake generator or a verified
+32-bit compiler for runtime-compatible Windows plugin builds. CI builds the
+plugin as Win32 and runs its C++ tests. The project pins the open.mp-compatible
+AMX plugin SDK and nlohmann/json by immutable commit IDs in
+`native/CMakeLists.txt`.
+
+See [Core Architecture](architecture.md) for the layer rules and module layout,
+and [Configuration](configuration.md) for environment selection and runtime
+setup. Phase 2 is complete; its review and verification evidence are tracked
+in [Issue #9](https://github.com/dissaramdhani/openmp-roleplay/issues/9) and
+[PR #8](https://github.com/dissaramdhani/openmp-roleplay/pull/8). Phase 3 is
+in progress under [Issue #12](https://github.com/dissaramdhani/openmp-roleplay/issues/12).
 
 To repeat the verified Pawn build on this workstation:
 
@@ -101,8 +113,18 @@ npm.cmd test
 node scripts/check-pawn-architecture.js
 ```
 
-Never commit credentials or production secrets; use local environment
-configuration and document safe examples.
+Build and test the configuration plugin with a 32-bit Windows toolchain
+compatible with the x86 open.mp server:
+
+```powershell
+cmake -S native -B build\native -A Win32
+cmake --build build\native --config Release
+ctest --test-dir build\native -C Release --output-on-failure
+```
+
+Never commit credentials or production secrets; the JSON examples only name an
+environment variable for a database password. See the configuration guide for
+the required process environment.
 
 ## Repository checks
 
@@ -115,6 +137,7 @@ node scripts/validate-workspace-config.js
 GitHub Actions runs the workspace validator, JavaScript lint and tests, Pawn
 architecture check, and Pawn GameMode compile on pushes and pull requests. The
 compile job downloads the official open.mp 1.6.7.3218 Windows release and
-verifies its SHA-256 digest before using the bundled compiler. C/C++ and
-database/application checks will be added when those projects and reproducible
-build/test commands are established.
+verifies its SHA-256 digest before using the bundled compiler. A separate
+Windows job builds the x86 C++ plugin and runs CTest. The C++ configuration
+tests do not connect to MySQL; database integration will be tested in its
+own phase.

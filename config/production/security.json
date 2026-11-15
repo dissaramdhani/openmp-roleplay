@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "max_login_attempts": 5,
+  "login_lockout_seconds": 900
+}

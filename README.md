@@ -11,7 +11,9 @@ setup dan verifikasi environment, termasuk koneksi MySQL localhost, telah
 lulus. Checklist dan bukti verifikasi tersedia pada Issue #5. Phase 2 telah
 selesai: fondasi arsitektur Pawn-first, registrasi modul, dokumentasi, dan
 pemeriksaan dependency telah lulus quality gate; buktinya tersedia pada Issue
-#9 dan PR #8. Fitur gameplay dan schema database belum diimplementasikan.
+#9 dan PR #8. Phase 3 sedang dikerjakan: loader konfigurasi JSON bertipe untuk
+environment development/production sedang dibangun pada Issue #12. Fitur
+gameplay dan schema database belum diimplementasikan.
 
 ## Teknologi
 
@@ -38,17 +40,19 @@ pemeriksaan dependency telah lulus quality gate; buktinya tersedia pada Issue
 ├── .github/
 │   └── workflows/       # GitHub Actions
 ├── .vscode/              # Rekomendasi extension, settings, dan tasks
+├── config/               # Contoh konfigurasi JSON per environment
 ├── docs/                 # Dokumentasi developer
 ├── gamemodes/            # Entry point dan core Pawn
+├── native/               # C++ configuration plugin dan tes
 ├── scripts/              # Tooling dan validasi repository
 ├── tests/                # Pengujian otomatis
 ├── README.md
 └── CONTRIBUTING.md
 ```
 
-Fondasi GameMode dan aturan arsitektur Pawn ditetapkan pada Phase 2. Direktori
-plugin C/C++, konfigurasi aplikasi, serta sistem roleplay akan ditambahkan pada
-phase yang sesuai.
+Fondasi GameMode dan aturan arsitektur Pawn ditetapkan pada Phase 2. Phase 3
+menambahkan konfigurasi aplikasi dan plugin Infrastructure C++; sistem gameplay
+tetap ditambahkan pada phase selanjutnya.
 
 ## Memulai
 
@@ -76,4 +80,8 @@ node scripts/check-pawn-architecture.js
 
 CI menjalankan pemeriksaan workspace, lint dan tes JavaScript, pemeriksaan
 dependency arsitektur Pawn, serta compile GameMode dengan Pawn dari rilis
-open.mp yang dipin dan diverifikasi checksum-nya.
+open.mp yang dipin dan diverifikasi checksum-nya. CI juga membangun plugin
+konfigurasi Windows x86 dan menjalankan tes C++.
+
+Lihat [panduan konfigurasi](docs/configuration.md) untuk pemilihan environment,
+schema v1, pengelolaan secret, dan API konfigurasi Pawn.

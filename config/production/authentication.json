@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "bcrypt_cost": 12,
+  "password_min_length": 8
+}
