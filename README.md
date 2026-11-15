@@ -36,7 +36,6 @@ diimplementasikan.
 ├── .vscode/              # Rekomendasi extension, settings, dan tasks
 ├── docs/                 # Dokumentasi developer
 ├── scripts/              # Tooling dan validasi repository
-├── PRD.md
 ├── README.md
 └── CONTRIBUTING.md
 ```
