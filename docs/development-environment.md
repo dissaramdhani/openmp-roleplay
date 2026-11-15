@@ -47,9 +47,10 @@ connection check, enter the password only at the local prompt:
   --execute="SELECT 1;"
 ```
 
-Phase 1 remains in progress until PR #6 is reviewed and merged and its required
-repository checks have passed. No gameplay or application source was changed
-for these toolchain smoke tests.
+Phase 1 is complete. The environment checks, including the MySQL connection
+test and repository validation, passed; the phase checklist and evidence are
+recorded in Issue #5. No gameplay or application source was changed for these
+toolchain smoke tests.
 
 ## Required toolchains
 
