@@ -345,9 +345,9 @@ bool Configuration::createSnapshot(std::shared_ptr<const Snapshot>& snapshot, st
             return false;
         }
 
-        const std::string contents(
+        const std::string contents {
             std::istreambuf_iterator<char>(input),
-            std::istreambuf_iterator<char>());
+            std::istreambuf_iterator<char>()};
         if (input.bad())
         {
             error = "Failed while reading configuration file " + displayPath + ".";
