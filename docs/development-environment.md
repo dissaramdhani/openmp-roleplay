@@ -23,7 +23,7 @@ The following versions were verified on the current Windows workstation:
 | Ninja | 1.13.2 | Used by the CMake smoke build |
 | Node.js / npm | 26.13.0 / 11.20.0 | JavaScript runtime smoke test passed |
 | Git | 2.56.0.windows.4 | Version check passed |
-| MySQL Server | 8.4.9 | Binaries installed; server configuration and connection test are pending |
+| MySQL Server | 8.4.9 | `MySQL84` service; `SELECT 1` passed over loopback |
 
 The open.mp package includes the Pawn compiler and its compatible includes.
 The server startup test used a temporary GameMode, disabled announcement and
@@ -33,23 +33,23 @@ MSYS2's packaged CMake 4.5.0 crashed during project configuration on this
 workstation (`0xC000001D`). Use the separately verified Kitware CMake 4.4.4
 portable release for CMake builds instead.
 
-MySQL Server is installed under `%ProgramFiles%\MySQL\MySQL Server 8.4`, but no
-MySQL service is configured and port 3306 is not listening. The MySQL
-Configurator requires administrator elevation. Run
-`%ProgramFiles%\MySQL\MySQL Server 8.4\bin\mysql_configurator.exe` as
-administrator, configure a local development instance bound to loopback, and
-set a strong private password directly in the configurator. Do not send the
-password in chat or commit it to the repository. After setup, verify the local
-connection with:
+MySQL Server 8.4.9 is installed under `%ProgramFiles%\MySQL\MySQL Server 8.4`
+and configured as the Windows service `MySQL84`, which starts automatically.
+The classic protocol (3306) and X Protocol (33060) listeners are both bound to
+`127.0.0.1`; no enabled inbound Windows Firewall allow rules for these ports
+were found. A local `SELECT 1` connection test succeeded. The root password
+was entered locally and is not stored in this repository. For a later
+connection check, enter the password only at the local prompt:
 
 ```powershell
 & "$env:ProgramFiles\MySQL\MySQL Server 8.4\bin\mysql.exe" `
-  --host=127.0.0.1 --user=root --password --execute="SELECT 1;"
+  --protocol=TCP --host=127.0.0.1 --port=3306 --user=root --password `
+  --execute="SELECT 1;"
 ```
 
-Phase 1 remains in progress until the MySQL connection test and the repository
-checks have passed. No gameplay or application source was changed for these
-toolchain smoke tests.
+Phase 1 remains in progress until PR #6 is reviewed and merged and its required
+repository checks have passed. No gameplay or application source was changed
+for these toolchain smoke tests.
 
 ## Required toolchains
 
