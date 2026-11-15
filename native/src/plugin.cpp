@@ -6,6 +6,8 @@
 #include <array>
 #include <cstdlib>
 #include <limits>
+#include <memory>
+#include <optional>
 #include <string>
 
 namespace
@@ -13,6 +15,34 @@ namespace
 
 constexpr std::size_t kKeyBufferSize = 128;
 constexpr std::size_t kMaximumPawnStringLength = 256;
+
+std::optional<std::string> readEnvironmentVariable(const char* name)
+{
+#ifdef _MSC_VER
+    char* value = nullptr;
+    std::size_t size = 0;
+    const int result = _dupenv_s(&value, &size, name);
+    std::unique_ptr<char, decltype(&std::free)> ownedValue(value, &std::free);
+    if (result != 0)
+    {
+        spsdk::Logger::global.logLnF(
+            spsdk::LogLevel::Error,
+            "Could not read environment variable '%s'.",
+            name);
+        return std::nullopt;
+    }
+
+    if (value == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    return std::string(value);
+#else
+    const char* value = std::getenv(name);
+    return value == nullptr ? std::nullopt : std::optional<std::string>(value);
+#endif
+}
 
 class RoleplayConfigurationPlugin final : public spsdk::IPlugin
 {
@@ -24,14 +54,14 @@ public:
 
     bool init() override
     {
-        const char* environment = std::getenv("OPENMP_ENV");
-        const char* configuredRoot = std::getenv("OPENMP_CONFIG_ROOT");
+        const auto environment = readEnvironmentVariable("OPENMP_ENV");
+        const auto configuredRoot = readEnvironmentVariable("OPENMP_CONFIG_ROOT");
         const std::filesystem::path root =
-            configuredRoot != nullptr && configuredRoot[0] != '\0'
-                ? std::filesystem::path(configuredRoot)
+            configuredRoot && !configuredRoot->empty()
+                ? std::filesystem::path(*configuredRoot)
                 : std::filesystem::path("config");
 
-        configuration_ = roleplay::Configuration(root, environment == nullptr ? "" : environment);
+        configuration_ = roleplay::Configuration(root, environment.value_or(""));
         std::string error;
         if (!configuration_.load(error))
         {
@@ -45,7 +75,7 @@ public:
         spsdk::Logger::global.logLnF(
             spsdk::LogLevel::Info,
             "Loaded schema v1 configuration for environment '%s'.",
-            environment);
+            environment->c_str());
         return true;
     }
 
