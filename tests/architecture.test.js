@@ -5,6 +5,7 @@ const test = require("node:test");
 
 const {
     checkPawnArchitecture,
+    isExternalDependencyAllowed,
     isDependencyAllowed,
 } = require("../scripts/check-pawn-architecture");
 
@@ -15,6 +16,10 @@ test("layer dependencies point inward and composition can wire adapters", () => 
     assert.equal(isDependencyAllowed("presentation", "application"), true);
     assert.equal(isDependencyAllowed("presentation", "infrastructure"), false);
     assert.equal(isDependencyAllowed("composition", "infrastructure"), true);
+    assert.equal(isExternalDependencyAllowed("domain"), false);
+    assert.equal(isExternalDependencyAllowed("application"), false);
+    assert.equal(isExternalDependencyAllowed("infrastructure"), true);
+    assert.equal(isExternalDependencyAllowed("presentation"), true);
 });
 
 test("Pawn sources obey the dependency rules and register the starter modules", () => {

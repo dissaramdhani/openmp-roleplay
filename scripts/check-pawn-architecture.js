@@ -18,6 +18,11 @@ const layerDependencies = {
         "presentation",
     ]),
 };
+const externalDependencyLayers = new Set([
+    "composition",
+    "infrastructure",
+    "presentation",
+]);
 const registeredModules = [
     "roleplay/application/startup.inc",
     "roleplay/infrastructure/adapters/console_logging.inc",
@@ -29,6 +34,10 @@ function isDependencyAllowed(sourceLayer, targetLayer) {
         Object.hasOwn(layerDependencies, sourceLayer) &&
         layerDependencies[sourceLayer].has(targetLayer)
     );
+}
+
+function isExternalDependencyAllowed(sourceLayer) {
+    return externalDependencyLayers.has(sourceLayer);
 }
 
 function collectPawnFiles(directory) {
@@ -64,6 +73,12 @@ function getLocalIncludes(source) {
     );
 }
 
+function getExternalIncludes(source) {
+    return [...source.matchAll(/^\s*#include\s+<([^>]+)>/gm)].map(
+        (match) => match[1],
+    );
+}
+
 function checkPawnArchitecture() {
     const errors = [];
     const pawnFiles = collectPawnFiles(gamemodeRoot);
@@ -86,6 +101,14 @@ function checkPawnArchitecture() {
         }
 
         const source = fs.readFileSync(filePath, "utf8");
+        for (const includePath of getExternalIncludes(source)) {
+            if (!isExternalDependencyAllowed(sourceLayer)) {
+                errors.push(
+                    `${relativeFile} (${sourceLayer}) cannot depend on external include <${includePath}>.`,
+                );
+            }
+        }
+
         for (const includePath of getLocalIncludes(source)) {
             const resolvedPath = path.resolve(gamemodeRoot, includePath);
             if (!resolvedPath.startsWith(`${gamemodeRoot}${path.sep}`)) {
@@ -133,4 +156,8 @@ if (require.main === module) {
     }
 }
 
-module.exports = { checkPawnArchitecture, isDependencyAllowed };
+module.exports = {
+    checkPawnArchitecture,
+    isDependencyAllowed,
+    isExternalDependencyAllowed,
+};

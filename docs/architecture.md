@@ -51,6 +51,9 @@ Composition root ──> Presentation, Application, Infrastructure, Domain
 - Quoted Pawn include paths are rooted at the `gamemodes/` compiler include
   directory and start with `roleplay/`; the architecture check resolves them
   using the same rule.
+- Domain and Application may not include external Pawn libraries. The
+  infrastructure, presentation, and composition layers are the only places
+  allowed to reference external includes.
 
 ## Pawn-specific contracts
 
