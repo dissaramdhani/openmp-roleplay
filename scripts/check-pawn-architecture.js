@@ -27,6 +27,7 @@ const registeredModules = [
     "roleplay/application/startup.inc",
     "roleplay/infrastructure/adapters/console_logging.inc",
     "roleplay/infrastructure/adapters/configuration.inc",
+    "roleplay/infrastructure/adapters/server_lifecycle.inc",
     "roleplay/presentation/server_callbacks.inc",
 ];
 

@@ -60,6 +60,9 @@ Composition root ──> Presentation, Application, Infrastructure, Domain
 - The Application configuration contract exposes typed reads and reload. The
   Infrastructure adapter forwards those calls to the C++ plugin. Domain and
   Application do not include C++ or JSON implementation details.
+- Application requests server shutdown through its server-lifecycle contract;
+  the Infrastructure adapter translates that request to open.mp's console
+  command rather than exposing the server native to the use case.
 - The C++ plugin validates the complete environment snapshot before publishing
   it. Reload builds and validates a candidate first, then atomically swaps the
   active immutable snapshot; a failed reload leaves the previous snapshot
