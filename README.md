@@ -67,14 +67,13 @@ VS Code saja tidak menyediakan toolchain tersebut.
 Dengan Node.js terpasang, jalankan:
 
 ```sh
+npm ci
+npm run lint
+npm test
 node scripts/validate-workspace-config.js
-```
-
-Validasi ini memeriksa sintaks JSON file konfigurasi workspace VS Code. CI awal
-menjalankan pemeriksaan yang sama. Pemeriksaan arsitektur Pawn dapat dijalankan
-dengan:
-
-```sh
 node scripts/check-pawn-architecture.js
-node --test tests/architecture.test.js
 ```
+
+CI menjalankan pemeriksaan workspace, lint dan tes JavaScript, pemeriksaan
+dependency arsitektur Pawn, serta compile GameMode dengan Pawn dari rilis
+open.mp yang dipin dan diverifikasi checksum-nya.
