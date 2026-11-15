@@ -47,9 +47,9 @@ connection check, enter the password only at the local prompt:
   --execute="SELECT 1;"
 ```
 
-The Phase 1 environment checks, including the MySQL connection test and
-repository validation, have passed. The phase checklist and final status are
-tracked in Issue #5. No gameplay or application source was changed for these
+Phase 1 is complete. The environment checks, including the MySQL connection
+test and repository validation, passed; the phase checklist and evidence are
+recorded in Issue #5. No gameplay or application source was changed for these
 toolchain smoke tests.
 
 ## Required toolchains
