@@ -76,6 +76,9 @@ bootstrap compiled with warnings treated as errors using that installation's
 matching includes. A Pawn build task is not added because this workstation's
 installation path is local-specific. No CMake plugin project exists yet.
 See [Core Architecture](architecture.md) for the layer rules and module layout.
+Phase 2 is complete; its review and verification evidence are tracked in
+[Issue #9](https://github.com/dissaramdhani/openmp-roleplay/issues/9) and
+[PR #8](https://github.com/dissaramdhani/openmp-roleplay/pull/8).
 
 To repeat the verified Pawn build on this workstation:
 

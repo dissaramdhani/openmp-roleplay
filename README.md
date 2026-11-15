@@ -8,10 +8,10 @@ Repository GitHub: [dissaramdhani/openmp-roleplay](https://github.com/dissaramdh
 Phase 0 telah selesai: fondasi repository, standar kontribusi, konfigurasi
 workspace, dokumentasi, dan CI awal sudah tersedia. Phase 1 telah selesai:
 setup dan verifikasi environment, termasuk koneksi MySQL localhost, telah
-lulus. Checklist dan bukti verifikasi tersedia pada Issue #5. Phase 2 sedang
-dikerjakan: fondasi arsitektur Pawn-first dan pemeriksaan dependency sudah
-tersedia dan sedang melewati quality gate. Fitur gameplay dan schema database
-belum diimplementasikan.
+lulus. Checklist dan bukti verifikasi tersedia pada Issue #5. Phase 2 telah
+selesai: fondasi arsitektur Pawn-first, registrasi modul, dokumentasi, dan
+pemeriksaan dependency telah lulus quality gate; buktinya tersedia pada Issue
+#9 dan PR #8. Fitur gameplay dan schema database belum diimplementasikan.
 
 ## Teknologi
 
