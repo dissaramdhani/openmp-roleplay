@@ -8,7 +8,9 @@ Repository GitHub: [dissaramdhani/openmp-roleplay](https://github.com/dissaramdh
 Phase 0 telah selesai: fondasi repository, standar kontribusi, konfigurasi
 workspace, dokumentasi, dan CI awal sudah tersedia. Phase 1 telah selesai:
 setup dan verifikasi environment, termasuk koneksi MySQL localhost, telah
-lulus. Checklist dan bukti verifikasi tersedia pada Issue #5. Fitur gameplay
+lulus. Checklist dan bukti verifikasi tersedia pada Issue #5. Phase 2 sedang
+dikerjakan: fondasi arsitektur Pawn-first dan pemeriksaan dependency sudah
+tersedia dan sedang melewati quality gate. Fitur gameplay dan schema database
 belum diimplementasikan.
 
 ## Teknologi
@@ -37,21 +39,24 @@ belum diimplementasikan.
 │   └── workflows/       # GitHub Actions
 ├── .vscode/              # Rekomendasi extension, settings, dan tasks
 ├── docs/                 # Dokumentasi developer
+├── gamemodes/            # Entry point dan core Pawn
 ├── scripts/              # Tooling dan validasi repository
+├── tests/                # Pengujian otomatis
 ├── README.md
 └── CONTRIBUTING.md
 ```
 
-Direktori untuk GameMode, plugin, konfigurasi, dan sistem roleplay akan
-ditambahkan sesuai scope phase terkait; struktur arsitektur aplikasi ditetapkan
-pada Phase 2.
+Fondasi GameMode dan aturan arsitektur Pawn ditetapkan pada Phase 2. Direktori
+plugin C/C++, konfigurasi aplikasi, serta sistem roleplay akan ditambahkan pada
+phase yang sesuai.
 
 ## Memulai
 
 1. Pasang Visual Studio Code dan Git.
 2. Buka folder repository di VS Code dan pasang extension yang direkomendasikan.
 3. Baca [panduan lingkungan pengembangan](docs/development-environment.md).
-4. Ikuti [panduan kontribusi](CONTRIBUTING.md).
+4. Baca [panduan core architecture](docs/architecture.md).
+5. Ikuti [panduan kontribusi](CONTRIBUTING.md).
 
 Compiler Pawn, open.mp server, MySQL, dan toolchain C/C++ harus dipasang serta
 diverifikasi sebelum pengembangan dan pengujian yang memerlukannya. Extension
@@ -66,4 +71,10 @@ node scripts/validate-workspace-config.js
 ```
 
 Validasi ini memeriksa sintaks JSON file konfigurasi workspace VS Code. CI awal
-menjalankan pemeriksaan yang sama.
+menjalankan pemeriksaan yang sama. Pemeriksaan arsitektur Pawn dapat dijalankan
+dengan:
+
+```sh
+node scripts/check-pawn-architecture.js
+node --test tests/architecture.test.js
+```

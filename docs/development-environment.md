@@ -68,10 +68,33 @@ short ASCII path, then install the UCRT64 compiler and Ninja packages from
 MSYS2's package manager. Use the open.mp release's bundled `qawno\pawncc.exe`
 and `qawno\include` directory for Pawn compilation.
 
-The repository currently has no GameMode source or CMake project to build.
-Keep the existing JavaScript and workspace-validation tasks; add Pawn and
-native build tasks when the project source layout and build targets are defined
-rather than hard-coding this workstation's tool paths.
+The repository now has a minimal Pawn GameMode entry point at
+`gamemodes/roleplay.pwn` and an architecture bootstrap. The Pawn compiler was
+found in the local server installation at
+`%USERPROFILE%\Downloads\Server\qawno\pawncc.exe` (it is not on `PATH`). The
+bootstrap compiled with warnings treated as errors using that installation's
+matching includes. A Pawn build task is not added because this workstation's
+installation path is local-specific. No CMake plugin project exists yet.
+See [Core Architecture](architecture.md) for the layer rules and module layout.
+
+To repeat the verified Pawn build on this workstation:
+
+```powershell
+$serverRoot = Join-Path $env:USERPROFILE 'Downloads\Server'
+$buildRoot = Join-Path $PWD 'build'
+New-Item -ItemType Directory -Path $buildRoot -Force | Out-Null
+& "$serverRoot\qawno\pawncc.exe" 'gamemodes\roleplay.pwn' `
+  "-i$serverRoot\qawno\include" `
+  "-i$PWD\gamemodes" `
+  "-o$buildRoot\roleplay.amx" -E
+```
+
+The architecture dependency check and its automated tests run with Node.js:
+
+```powershell
+node scripts/check-pawn-architecture.js
+node --test tests/architecture.test.js
+```
 
 Never commit credentials or production secrets; use local environment
 configuration and document safe examples.
