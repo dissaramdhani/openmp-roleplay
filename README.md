@@ -6,8 +6,10 @@ Repository GitHub: [dissaramdhani/openmp-roleplay](https://github.com/dissaramdh
 ## Status
 
 Phase 0 telah selesai: fondasi repository, standar kontribusi, konfigurasi
-workspace, dokumentasi, dan CI awal sudah tersedia. Phase 1 belum dimulai dan
-fitur gameplay belum diimplementasikan.
+workspace, dokumentasi, dan CI awal sudah tersedia. Phase 1 sedang berlangsung
+dan dilacak pada Issue #5. Toolchain, termasuk koneksi MySQL localhost, telah
+diverifikasi; Phase 1 menunggu review dan merge PR #6 sebelum ditandai selesai.
+Fitur gameplay belum diimplementasikan.
 
 ## Teknologi
 
